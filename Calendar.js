@@ -87,10 +87,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     },
     
-    // Open links in new tab
+    // Open links - blog posts on same page, Torah portions in new tab
     eventClick: function(info) {
       if (info.event.url) {
-        window.open(info.event.url, '_blank');
+        if (info.event.extendedProps.category === 'blog') {
+          // Blog posts open on same page
+          window.location.href = info.event.url;
+        } else {
+          // Torah portions open in new tab
+          window.open(info.event.url, '_blank');
+        }
         info.jsEvent.preventDefault(); // Prevent default action
       }
     },
