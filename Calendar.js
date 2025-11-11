@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
       right: 'dayGridMonth,dayGridWeek,listYear'
     },
     events: function(info, successCallback, failureCallback) {
+      // Custom blog post events - Add your own events here!
+      var customEvents = [
+        // Example: { title: 'My Blog Post Title', start: '2026-01-03', url: 'https://example.com/blog-post', category: 'blog' }
+        // Add more custom events below this line:
+        
+      ];
+      
       // Fetch from Hebcal API
       var year = info.start.getFullYear();
       fetch('https://www.hebcal.com/hebcal?v=1&cfg=json&year=' + year + '&maj=on&min=on&nx=on&mf=on&ss=on&mod=on&lg=s&s=on')
@@ -27,15 +34,16 @@ document.addEventListener('DOMContentLoaded', function() {
             var eventColor = '#95a5a6'; // Default gray
             var eventUrl = null;
             
+            // Skip Candle Lighting and Havdalah events
+            if (item.category === 'candles' || item.category === 'havdalah') {
+              return null;
+            }
+            
             // Color code by category
             if (item.category === 'holiday') {
               eventColor = '#e74c3c'; // Red for holidays
             } else if (item.category === 'parashat') {
               eventColor = '#3498db'; // Blue for Torah portions
-            } else if (item.category === 'candles') {
-              eventColor = '#f39c12'; // Orange for candle lighting
-            } else if (item.category === 'havdalah') {
-              eventColor = '#9b59b6'; // Purple for havdalah
             }
             
             // Add clickable link if available
@@ -55,7 +63,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 memo: item.memo || ''
               }
             };
+          }).filter(event => event !== null);
+          
+          // Add custom events with blog post color
+          customEvents.forEach(function(customEvent) {
+            events.push({
+              title: customEvent.title,
+              start: customEvent.start,
+              allDay: true,
+              color: '#337786', // Blog post color
+              url: customEvent.url || null,
+              extendedProps: {
+                category: 'blog'
+              }
+            });
           });
+          
           successCallback(events);
         })
         .catch(error => {
@@ -119,8 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="display: inline-flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
       <div><span style="display: inline-block; width: 15px; height: 15px; background: #3498db; border-radius: 3px; margin-right: 5px;"></span><strong>Torah Portions (Click to read)</strong></div>
       <div><span style="display: inline-block; width: 15px; height: 15px; background: #e74c3c; border-radius: 3px; margin-right: 5px;"></span>Holidays</div>
-      <div><span style="display: inline-block; width: 15px; height: 15px; background: #f39c12; border-radius: 3px; margin-right: 5px;"></span>Candle Lighting</div>
-      <div><span style="display: inline-block; width: 15px; height: 15px; background: #9b59b6; border-radius: 3px; margin-right: 5px;"></span>Havdalah</div>
+      <div><span style="display: inline-block; width: 15px; height: 15px; background: #337786; border-radius: 3px; margin-right: 5px;"></span><strong>Blog Posts (Click to read)</strong></div>
     </div>
   `;
   calendarEl.parentNode.appendChild(legend);
