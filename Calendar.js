@@ -10,13 +10,28 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('hebrew-calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    headerToolbar: {
+  
+  // Determine initial view based on screen size
+  var initialView = 'dayGridMonth';
+  var headerToolbar = {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,dayGridWeek,listYear'
+  };
+  
+  // Mobile: use list view only
+  if (window.innerWidth < 768) {
+    initialView = 'listYear';
+    headerToolbar = {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,dayGridWeek,listYear'
-    },
+      right: ''
+    };
+  }
+  
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: initialView,
+    headerToolbar: headerToolbar,
     events: function(info, successCallback, failureCallback) {
       // Fetch from Hebcal API
       var year = info.start.getFullYear();
@@ -134,12 +149,14 @@ document.addEventListener('DOMContentLoaded', function() {
   border: 2px solid #333;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.3s ease;
+  transition: box-shadow 0.3s ease;
+  height: 750px;
+  overflow-y: auto;
 }
 
-/* Hover effect for calendar */
+/* Hover effect - shadow color changes */
 #hebrew-calendar:hover {
-  border-color: #a81710;
+  box-shadow: 0 4px 15px rgba(168, 23, 16, 0.6);
 }
 
 /* Desktop: 1100px max width */
@@ -153,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @media (min-width: 768px) and (max-width: 1023px) {
   #hebrew-calendar {
     max-width: 95% !important;
+    height: 600px;
   }
 }
 
@@ -190,6 +208,15 @@ document.addEventListener('DOMContentLoaded', function() {
   
   .fc-event-title {
     font-size: 0.75em;
+  }
+  
+  /* Reduce font size for list view on mobile */
+  .fc-list-event-title {
+    font-size: 0.85em !important;
+  }
+  
+  .fc-col-header-cell {
+    font-size: 0.8em !important;
   }
 }
 
