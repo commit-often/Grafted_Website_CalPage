@@ -5,7 +5,7 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
 <!-- Calendar Container -->
-<div id='hebrew-calendar' style='max-width: 1100px; margin: 40px auto;'></div>
+<div id='hebrew-calendar' style='margin: 40px auto; padding: 0 10px;'></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -128,6 +128,62 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+/* Responsive container for calendar */
+#hebrew-calendar {
+  max-width: 1100px !important;
+}
+
+/* Desktop: 1100px max width */
+@media (min-width: 1024px) {
+  #hebrew-calendar {
+    max-width: 1100px !important;
+  }
+}
+
+/* Tablet: 768px to 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #hebrew-calendar {
+    max-width: 95% !important;
+  }
+}
+
+/* Mobile: Below 768px */
+@media (max-width: 767px) {
+  #hebrew-calendar {
+    max-width: 100% !important;
+  }
+  
+  /* Reduce font sizes on mobile */
+  .fc-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .fc-toolbar-chunk {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .fc-button-group {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .fc-button {
+    padding: 0.4em 0.6em !important;
+    font-size: 0.75em !important;
+  }
+  
+  .fc-daygrid-day-number {
+    font-size: 0.8em;
+  }
+  
+  .fc-event-title {
+    font-size: 0.75em;
+  }
+}
+
 /* Custom styling for calendar */
 .fc-event {
   cursor: pointer !important;
@@ -146,5 +202,13 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Make sure event text is readable */
 .fc-event-title {
   font-weight: 600;
+}
+
+/* Responsive legend */
+@media (max-width: 767px) {
+  .fc-event-tooltip {
+    max-width: 200px !important;
+    font-size: 12px !important;
+  }
 }
 </style>
