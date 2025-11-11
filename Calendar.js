@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   transition: box-shadow 0.3s ease;
-  height: 750px;
+  height: 500px;
   overflow-y: auto;
 }
 
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @media (min-width: 768px) and (max-width: 1023px) {
   #hebrew-calendar {
     max-width: 95% !important;
-    height: 600px;
+    height: 400px;
   }
 }
 
