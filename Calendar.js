@@ -131,6 +131,15 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Responsive container for calendar */
 #hebrew-calendar {
   max-width: 1100px !important;
+  border: 2px solid #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.3s ease;
+}
+
+/* Hover effect for calendar */
+#hebrew-calendar:hover {
+  border-color: #a81710;
 }
 
 /* Desktop: 1100px max width */
