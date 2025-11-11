@@ -4,105 +4,70 @@
 <!-- FullCalendar JS -->
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
-<!-- Hebcal Core Library -->
-<script src='https://cdn.jsdelivr.net/npm/@hebcal/core@5.31.2/dist/hebcal.min.js'></script>
-
 <!-- Calendar Container -->
-<div id='hebrew-calendar'></div>
+<div id='hebrew-calendar' style='margin: 40px auto; padding: 0 10px;'></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('hebrew-calendar');
-  
-  // Determine initial view based on screen size
-  var initialView = 'dayGridMonth';
-  var headerToolbar = {
-    left: 'prev,next today',
-    center: 'title',
-    right: 'dayGridMonth,dayGridWeek,listYear'
-  };
-  
-  // Mobile: use list view only
-  if (window.innerWidth < 768) {
-    initialView = 'listYear';
-    headerToolbar = {
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: ''
-    };
-  }
-  
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: initialView,
-    headerToolbar: headerToolbar,
-    contentHeight: 500,
-    
-    datesSet: function(info) {
-      console.log('Calendar dates set:', info.start, 'to', info.end);
+      right: 'dayGridMonth,dayGridWeek,listYear'
     },
-    
     events: function(info, successCallback, failureCallback) {
-      try {
-        console.log('Generating events for range:', info.start, 'to', info.end);
-        
-        // Use @hebcal/core library to generate events
-        var startYear = info.start.getFullYear();
-        var endYear = info.end.getFullYear();
-        var allEvents = [];
-        
-        // Generate events for each year in the range
-        for (var year = startYear; year <= endYear; year++) {
-          var events = window.HebcalHDate.HebrewCalendar.calendar({
-            year: year,
-            isHebrewYear: false,
-            noModern: false
-          });
-          
-          console.log('Generated', events.length, 'events for year', year);
-          
-          // Convert Hebcal events to FullCalendar format
-          events.forEach(function(item) {
+      // Fetch from Hebcal API
+      var year = info.start.getFullYear();
+      fetch('https://www.hebcal.com/hebcal?v=1&cfg=json&year=' + year + '&maj=on&min=on&nx=on&mf=on&ss=on&mod=on&lg=s&s=on')
+        .then(response => response.json())
+        .then(data => {
+          var events = data.items.map(item => {
             var eventColor = '#95a5a6'; // Default gray
-            var flags = item.getFlags ? item.getFlags() : 0;
+            var eventUrl = null;
             
-            // Color code by category based on event type
-            if (item.constructor.name === 'HolidayEvent') {
+            // Color code by category
+            if (item.category === 'holiday') {
               eventColor = '#e74c3c'; // Red for holidays
-            } else if (item.constructor.name === 'ParshaEvent' || (flags & 0x08)) {
+            } else if (item.category === 'parashat') {
               eventColor = '#3498db'; // Blue for Torah portions
-            } else if (item.constructor.name === 'CandleLightingEvent' || (flags & 0x20)) {
+            } else if (item.category === 'candles') {
               eventColor = '#f39c12'; // Orange for candle lighting
-            } else if (item.constructor.name === 'HavdalahEvent' || (flags & 0x40)) {
+            } else if (item.category === 'havdalah') {
               eventColor = '#9b59b6'; // Purple for havdalah
             }
             
-            var fcEvent = {
-              title: item.render(),
-              start: item.getDate().toISOString().split('T')[0],
+            // Add clickable link if available
+            if (item.link) {
+              eventUrl = item.link;
+            }
+            
+            return {
+              title: item.title,
+              start: item.date,
               allDay: true,
-              backgroundColor: eventColor,
-              borderColor: eventColor,
+              color: eventColor,
+              url: eventUrl, // Makes the event clickable!
               extendedProps: {
-                category: item.constructor.name
+                hebrew: item.hebrew || '',
+                category: item.category || '',
+                memo: item.memo || ''
               }
             };
-            
-            allEvents.push(fcEvent);
           });
-        }
-        
-        console.log('Sending', allEvents.length, 'events to calendar');
-        successCallback(allEvents);
-      } catch (error) {
-        console.error('Error generating Hebcal events:', error);
-        failureCallback(error);
-      }
+          successCallback(events);
+        })
+        .catch(error => {
+          console.error('Error fetching Hebcal data:', error);
+          failureCallback(error);
+        });
     },
     
     // Open links in new tab
     eventClick: function(info) {
-      if (info.event.extendedProps.link) {
-        window.open(info.event.extendedProps.link, '_blank');
+      if (info.event.url) {
+        window.open(info.event.url, '_blank');
         info.jsEvent.preventDefault(); // Prevent default action
       }
     },
@@ -121,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tooltip.innerHTML += '<br><em>' + info.event.extendedProps.memo + '</em>';
       }
       
-      if (info.event.extendedProps.link) {
+      if (info.event.url) {
         tooltip.innerHTML += '<br><small>Click to read more →</small>';
       }
       
@@ -166,12 +131,11 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Responsive container for calendar */
 #hebrew-calendar {
   max-width: 1100px !important;
-  margin: 40px auto;
-  padding: 0 10px;
   border: 2px solid #333;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  transition: box-shadow 0.3s ease;
+  transition: border-color 0.3s ease;
+  height: 550px;
 }
 
 /* Hover effect - shadow color changes */
@@ -190,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @media (min-width: 768px) and (max-width: 1023px) {
   #hebrew-calendar {
     max-width: 95% !important;
+    height: 500px;
   }
 }
 
@@ -228,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
   .fc-event-title {
     font-size: 0.75em;
   }
-  
   /* Reduce font size for list view on mobile */
   .fc-list-event-title {
     font-size: 0.85em !important;
@@ -237,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
   .fc-col-header-cell {
     font-size: 0.8em !important;
   }
+
 }
 
 /* Custom styling for calendar */
